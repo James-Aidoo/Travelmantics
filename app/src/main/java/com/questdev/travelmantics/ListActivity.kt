@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.auth.AuthUI
@@ -38,6 +39,8 @@ class ListActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.list_activity_menu, menu)
+        val insertMenu = menu?.findItem(R.id.action_insert)
+        insertMenu?.isVisible = FirebaseUtil.isAdmin == true
         return true
     }
 
@@ -53,6 +56,7 @@ class ListActivity : AppCompatActivity() {
                     .signOut(this)
                     .addOnCompleteListener {
                         Log.d("Logout", "User Logged out")
+                        Toast.makeText(this, "Logged Out", Toast.LENGTH_SHORT).show()
                         FirebaseUtil.attachListener()
                     }
                 FirebaseUtil.detachListener()
@@ -62,19 +66,7 @@ class ListActivity : AppCompatActivity() {
         }
     }
 
-    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val response = IdpResponse.fromResultIntent(data)
-
-            if (resultCode == Activity.RESULT_OK) {
-                // Successfully signed in
-                val user = FirebaseAuth.getInstance().currentUser
-                // ...
-            } else {
-
-            }
-        }
-    }*/
+    fun showMenu() {
+        invalidateOptionsMenu()
+    }
 }

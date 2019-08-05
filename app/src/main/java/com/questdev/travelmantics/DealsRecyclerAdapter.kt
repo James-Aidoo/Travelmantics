@@ -5,10 +5,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import com.questdev.travelmantics.utils.FirebaseUtil
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_deal.*
 
 class DealsRecyclerAdapter : RecyclerView.Adapter<DealsRecyclerAdapter.ViewHolder>(){
     var firebaseDatabase: FirebaseDatabase
@@ -70,11 +73,21 @@ class DealsRecyclerAdapter : RecyclerView.Adapter<DealsRecyclerAdapter.ViewHolde
         private val titleView: TextView = itemView.findViewById(R.id.tvTitle)
         private val textDescription: TextView = itemView.findViewById(R.id.tvDescription)
         private val textPrice: TextView = itemView.findViewById(R.id.tvPrice)
+        private val imageView: ImageView = itemView.findViewById(R.id.imageDeal)
 
         fun bind(deal: TravelDeal) {
             titleView.text = deal.title
             textDescription.text = deal.description
             textPrice.text = deal.price
+            showImage(deal.imageUrl)
+        }
+
+        private fun showImage(url: String?) {
+            if ((url != null || url != "") && url?.isEmpty() == false) {
+                Picasso.get().load(url).resize(160, 160)
+                    .centerCrop()
+                    .into(imageView)
+            }
         }
 
         init {

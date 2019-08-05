@@ -8,4 +8,5 @@
     <string name="insert_deal_menu_item">Insert Deal</string>
     <string name="delete_deal">Delete Deal</string>
     <string name="logout">Logout</string>
+    <string name="upload">Upload</string>
 </resources>

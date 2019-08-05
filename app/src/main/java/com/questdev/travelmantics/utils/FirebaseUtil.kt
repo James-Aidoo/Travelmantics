@@ -2,13 +2,16 @@ package com.questdev.travelmantics.utils
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.questdev.travelmantics.ListActivity
 import com.questdev.travelmantics.TravelDeal
 
 class FirebaseUtil private constructor() {
@@ -19,24 +22,32 @@ class FirebaseUtil private constructor() {
         lateinit var databaseReference: DatabaseReference
         lateinit var firebaseAuth: FirebaseAuth
         lateinit var authListener: AuthStateListener
+        lateinit var storage: FirebaseStorage
+        lateinit var storageRef: StorageReference
         lateinit var deals: ArrayList<TravelDeal>
-        lateinit var caller: Activity
+        var isAdmin: Boolean = false
+        lateinit var caller: ListActivity
         var firebaseUtil: FirebaseUtil? = null
 
-        fun openFbReference(ref: String, callerActivity: Activity) {
+        fun openFbReference(ref: String, callerActivity: ListActivity = ListActivity()) {
             if (firebaseUtil == null){
                 firebaseUtil = FirebaseUtil()
                 firebaseDatabase = FirebaseDatabase.getInstance()
                 firebaseAuth = FirebaseAuth.getInstance()
                 caller = callerActivity
-                authListener = object : AuthStateListener {
-                    override fun onAuthStateChanged(p0: FirebaseAuth) {
-                        if (firebaseAuth.currentUser == null)
-                            signIn()
-                        Toast.makeText(callerActivity.baseContext, "Welcome back!", Toast.LENGTH_LONG).show()
+                authListener = AuthStateListener {
+                    if (firebaseAuth.currentUser == null)
+                        signIn()
+                    else {
+                        val userId = firebaseAuth.uid
+                        checkAdmin(userId)
                     }
+                    Toast.makeText(callerActivity.baseContext, "Welcome back!", Toast.LENGTH_LONG).show()
                 }
             }
+
+            connectStorage()
+
             deals = arrayListOf()
             databaseReference = firebaseDatabase.reference.child(ref)
         }
@@ -60,6 +71,41 @@ class FirebaseUtil private constructor() {
                     .setAvailableProviders(providers)
                     .build(),
                 RC_SIGN_IN)
+        }
+
+        private fun checkAdmin(uid: String?) {
+            isAdmin = false
+            val ref = firebaseDatabase.reference.child("administrators")
+                .child(uid!!)
+
+            val childEventListener = object : ChildEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+
+                }
+
+                override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                    isAdmin = true
+                    caller.showMenu()
+                }
+
+                override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+
+                }
+
+                override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+
+                }
+
+                override fun onChildRemoved(p0: DataSnapshot) {
+
+                }
+            }
+            ref.addChildEventListener(childEventListener)
+        }
+
+        private fun connectStorage() {
+            storage = FirebaseStorage.getInstance()
+            storageRef = storage.reference.child("deals_pictures")
         }
     }
 }

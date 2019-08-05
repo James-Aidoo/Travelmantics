@@ -9,5 +9,6 @@ data class TravelDeal(
     var title: String = "",
     var description: String = "",
     var price: String = "",
-    var imageUrl: String = ""
+    var imageUrl: String = "",
+    var imageName: String = ""
 ) : Parcelable
