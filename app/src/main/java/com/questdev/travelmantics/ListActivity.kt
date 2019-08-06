@@ -22,6 +22,7 @@ class ListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        invalidateOptionsMenu()
 
         FirebaseUtil.openFbReference("traveldeals", this)
         val adapter = DealsRecyclerAdapter()
@@ -30,6 +31,15 @@ class ListActivity : AppCompatActivity() {
         rvDeals.adapter = adapter
 
         FirebaseUtil.attachListener()
+    }
+
+    override fun onBackPressed() {
+//        super.onBackPressed()
+        val currentUser = FirebaseUtil.firebaseAuth.currentUser
+        if (currentUser == null){
+            FirebaseUtil.detachListener()
+            finish()
+        }
     }
 
     override fun onPause() {
